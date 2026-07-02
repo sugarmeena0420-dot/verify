@@ -166,9 +166,7 @@
 
     <div class="card">
         <div class="icon-container" id="icon-box">
-            <!-- Scanning Fingerprint Icon -->
-            <span id="scan-icon" style="font-size: 50px; animation: pulse 1s infinite alternate;">🧬</span>
-            <!-- Shield Icon (Hidden) -->
+            <span id="scan-icon" style="font-size: 50px;">🧬</span>
             <span id="shield-icon" style="font-size: 55px; display: none;">🛡️</span>
         </div>
 
@@ -185,7 +183,8 @@
             </div>
         </div>
 
-        <button class="btn-continue" id="btn" onclick="closeWebApp()">Continue to Bot</button>
+        <!-- Direct closing trigger added here -->
+        <button class="btn-continue" id="btn" onclick="window.Telegram.WebApp.close()">Continue to Bot</button>
     </div>
 
     <div></div>
@@ -193,8 +192,8 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready(); // Crucial Telegram Handshake Fix
 
-        // Telegram real user details load karne ka function
         try {
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 const user = tg.initDataUnsafe.user;
@@ -220,7 +219,6 @@
             if (width >= 100) {
                 clearInterval(interval);
                 
-                // Success phase triggers here
                 scanIcon.style.display = 'none';
                 shieldIcon.style.display = 'block';
                 iconBox.classList.add('verified');
@@ -250,10 +248,6 @@
                 }
             }
         }, 60);
-
-        function closeWebApp() {
-            tg.close();
-        }
     </script>
 </body>
 </html>
