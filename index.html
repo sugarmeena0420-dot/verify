@@ -3,111 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Device Verification</title>
-    <!-- Telegram Web App Script -->
+    <title>Cash Reward Verification</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            background-color: #182533;
+            background-color: #0b0e14;
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             height: 100vh;
             margin: 0;
-            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        .container {
+        .header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #1f2633;
+        }
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .avatar {
+            width: 35px;
+            height: 35px;
+            background-color: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .username { font-weight: bold; font-size: 14px; }
+        .userid { font-size: 11px; color: #7f8c8d; }
+        .badge {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge.scanning {
+            background-color: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+        .card {
+            background: linear-gradient(135deg, #141a24 0%, #11151d 100%);
+            border: 1px solid #1f2633;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 360px;
+            padding: 40px 20px;
             text-align: center;
-            width: 85%;
-            background: #223142;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            margin: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
-        .scan-icon {
-            font-size: 75px;
-            margin-bottom: 20px;
-            display: inline-block;
-            animation: pulse 1.5s infinite ease-in-out;
+        .icon-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid #3498db;
+            margin: 0 auto 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.2);
         }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.7; color: #3498db; }
-            50% { transform: scale(1.1); opacity: 1; color: #2ec4b6; }
-            100% { transform: scale(1); opacity: 0.7; color: #3498db; }
+        .icon-container.verified {
+            border-color: #2475ff;
+            background: rgba(36, 117, 255, 0.05);
+            box-shadow: 0 0 25px rgba(36, 117, 255, 0.3);
+        }
+        .main-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .main-text.verified {
+            color: #2475ff;
+            font-size: 28px;
+        }
+        .sub-text {
+            color: #8a99ad;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            min-height: 42px;
+        }
+        .progress-container {
+            width: 100%;
         }
         .progress-bar {
             width: 100%;
-            background-color: #101921;
+            height: 6px;
+            background-color: #1c2431;
             border-radius: 10px;
             overflow: hidden;
-            margin-top: 25px;
-            height: 12px;
-            border: 1px solid #2b394a;
+            margin-bottom: 12px;
         }
-        .progress {
+        .progress-fill {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, #3498db, #2ec4b6);
-            transition: width 0.1s linear;
+            background: #2475ff;
+            transition: width 0.08s linear;
         }
-        .status {
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 15px;
-            color: #b0bec5;
+        .progress-status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #52667d;
+            font-weight: bold;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+        .btn-continue {
+            display: none;
+            width: 100%;
+            background-color: #2475ff;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(36, 117, 255, 0.3);
+        }
+        .btn-continue:active {
+            background-color: #1a61d9;
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <div class="scan-icon" id="icon">🛡️</div>
-        <div class="status" id="status">Checking Device Integrity...</div>
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
+    <div class="header">
+        <div class="profile">
+            <div class="avatar" id="user-avatar">U</div>
+            <div class="user-info">
+                <span class="username" id="user-name">User</span>
+                <span class="userid" id="user-id">ID: Checking...</span>
+            </div>
         </div>
+        <div class="badge scanning" id="top-badge">Scanning</div>
     </div>
+
+    <div class="card">
+        <div class="icon-container" id="icon-box">
+            <!-- Scanning Fingerprint Icon -->
+            <span id="scan-icon" style="font-size: 50px; animation: pulse 1s infinite alternate;">🧬</span>
+            <!-- Shield Icon (Hidden) -->
+            <span id="shield-icon" style="font-size: 55px; display: none;">🛡️</span>
+        </div>
+
+        <div class="main-text" id="main-title">Verifying Device</div>
+        <div class="sub-text" id="sub-title">Establishing secure handshake...</div>
+
+        <div class="progress-container" id="prog-box">
+            <div class="progress-bar">
+                <div class="progress-fill" id="fill"></div>
+            </div>
+            <div class="progress-status">
+                <span id="status-left">Analysis in progress</span>
+                <span id="status-right">0%</span>
+            </div>
+        </div>
+
+        <button class="btn-continue" id="btn" onclick="closeWebApp()">Continue to Bot</button>
+    </div>
+
+    <div></div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Telegram real user details load karne ka function
+        try {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                document.getElementById('user-name').innerText = user.first_name;
+                document.getElementById('user-id').innerText = 'ID: ' + user.id;
+                document.getElementById('user-avatar').innerText = user.first_name.substring(0, 2).toUpperCase();
+            }
+        } catch(e) {}
+
         let width = 0;
-        const progress = document.getElementById('progress');
-        const status = document.getElementById('status');
-        const icon = document.getElementById('icon');
+        const fill = document.getElementById('fill');
+        const percentText = document.getElementById('status-right');
+        const mainTitle = document.getElementById('main-title');
+        const subTitle = document.getElementById('sub-title');
+        const scanIcon = document.getElementById('scan-icon');
+        const shieldIcon = document.getElementById('shield-icon');
+        const iconBox = document.getElementById('icon-box');
+        const topBadge = document.getElementById('top-badge');
+        const progBox = document.getElementById('prog-box');
+        const btn = document.getElementById('btn');
 
         const interval = setInterval(() => {
             if (width >= 100) {
                 clearInterval(interval);
-                status.innerText = "Device Verified Successfully! ✅";
-                status.style.color = "#2ecc71";
-                icon.innerText = "🔒";
-                icon.style.animation = "none";
                 
-                setTimeout(() => {
-                    tg.close();
-                }, 1500);
+                // Success phase triggers here
+                scanIcon.style.display = 'none';
+                shieldIcon.style.display = 'block';
+                iconBox.classList.add('verified');
+                
+                mainTitle.innerText = "Already Verified";
+                mainTitle.classList.add('verified');
+                subTitle.innerText = "You're checked you can continue to bot.";
+                
+                topBadge.innerText = "Active";
+                topBadge.className = "badge";
+                
+                progBox.style.display = 'none';
+                btn.style.display = 'block';
             } else {
                 width += 2;
-                progress.style.width = width + '%';
+                fill.style.width = width + '%';
+                percentText.innerText = width + '%';
                 
                 if(width == 30) {
-                    status.innerText = "Scanning for Malicious Scripts... 🔎";
+                    subTitle.innerText = "Checking hardware integrity...";
                 }
                 if(width == 60) {
-                    status.innerText = "Verifying Telegram Session... ⚙️";
+                    subTitle.innerText = "Verifying secure Telegram session...";
                 }
                 if(width == 85) {
-                    status.innerText = "Finishing Security Checks... 🚀";
+                    subTitle.innerText = "Finalizing secure encryption key...";
                 }
             }
-        }, 80);
+        }, 60);
+
+        function closeWebApp() {
+            tg.close();
+        }
     </script>
 </body>
-      </html>
-      
+</html>
